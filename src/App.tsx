@@ -90,7 +90,7 @@ export default function BgRemoverPage() {
         } else if (
           result &&
           typeof result === "object" &&
-          (result instanceof ArrayBuffer || ArrayBuffer.isView(result))
+          ((result as any) instanceof ArrayBuffer || ArrayBuffer.isView(result))
         ) {
           try {
             const blob = new Blob([result as any], { type: "image/png" });
