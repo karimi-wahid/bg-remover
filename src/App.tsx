@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { removeBackground } from "@imgly/background-removal";
-import { Sparkles, Upload, ImageIcon, Check, X, Download } from "lucide-react";
+import { Sparkles, Upload, ImageIcon, Check, Download } from "lucide-react";
 import {
   ImageComparison,
   ImageComparisonImage,
@@ -118,6 +118,26 @@ export default function BgRemoverPage() {
     setResultImage(null);
   };
 
+  async function handleDownload() {
+    if (!resultImage) return;
+    try {
+      const res = await fetch(resultImage);
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onload = () => {
+        const a = document.createElement("a");
+        a.href = reader.result as string;
+        a.download = `${Date.now()}-bg-removed.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      window.open(resultImage, "_blank");
+    }
+  }
+
   return (
     <main className="min-h-screen bg-linear-to-br from-slate-950 via-blue-950 to-slate-900 text-white px-4 py-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-blue-700/20 via-transparent to-transparent"></div>
@@ -130,7 +150,7 @@ export default function BgRemoverPage() {
               <Sparkles className="w-6 h-6" />
             </div>
             <TextShimmerWave
-              className="text-xl sm:text-2xl lg:text-4xl font-bold bg-linear-to-r from-blue-500 via-cyan-500 to-blue-600 bg-clip-text text-transparent"
+              className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-linear-to-r from-blue-500 via-cyan-500 to-blue-600 bg-clip-text text-transparent"
               duration={1}
               spread={1}
               zDistance={1}
@@ -140,7 +160,7 @@ export default function BgRemoverPage() {
               BG Remover AI
             </TextShimmerWave>
           </div>
-          <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
+          <p className="text-gray-300 max-w-xl mx-auto text-base sm:text-lg">
             Instantly remove backgrounds with AI. Runs entirely in your browser
             — no server, no API key, complete privacy.
           </p>
@@ -230,15 +250,14 @@ export default function BgRemoverPage() {
         {originalImage && resultImage && (
           <div className="animate-fade-in">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+              <h2 className="text-[16px] sm:text-2xl font-bold flex items-center gap-2">
                 <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-400" />
                 Compare Results
               </h2>
               <button
                 onClick={resetImages}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-sm sm:text-base w-full sm:w-auto justify-center sm:justify-start"
+                className="flex items-center gap-2 px-1 py-1 rounded-xl bg-white/10 hover:bg-white/20 transition-colors border border-white/20 text-sm sm:text-base w-full sm:w-auto justify-center sm:justify-start"
               >
-                <X className="w-4 h-4" />
                 New Image
               </button>
             </div>
@@ -264,7 +283,7 @@ export default function BgRemoverPage() {
             <div className="flex flex-wrap gap-4 justify-center">
               <a
                 href={resultImage}
-                download={Date.now() + "-bg-removed.png"}
+                onClick={handleDownload}
                 className="flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 font-bold text-sm sm:text-base shadow-lg shadow-blue-500/50 hover:shadow-xl hover:shadow-cyan-500/50 hover:scale-105"
               >
                 <Download className="w-4 sm:w-5 h-4 sm:h-5" />
